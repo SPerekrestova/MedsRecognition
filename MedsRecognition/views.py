@@ -1,12 +1,16 @@
+import easyocr
 import io
+from PIL import Image
+from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+
 from MedsRecognition.forms import ImageUploadForm
 from MedsRecognition.meds_recognition import MedsRecognition
-from PIL import Image
-import easyocr
 
 reader = easyocr.Reader(['en'], gpu=True)
 meds_recognition = MedsRecognition()
+
 
 def extract_text_with_easyocr(image):
     if image.mode in ('RGBA', 'P'):
@@ -19,6 +23,8 @@ def extract_text_with_easyocr(image):
     results = reader.readtext(image_bytes.read(), detail=0)
     return " ".join(results)
 
+
+@csrf_exempt # DEVELOPMENT ONLY 403 ERROR DISABLE
 def upload_image(request):
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
@@ -29,14 +35,13 @@ def upload_image(request):
                 image = image.convert('RGB')
             extracted_text = extract_text_with_easyocr(image)
             active_ingredients = recognise(extracted_text)
-            return render(request, 'recognition/result.html',
-                          {
-                              'text': extracted_text,
-                              'active_ingredients': active_ingredients
-                           })
-    else:
-        form = ImageUploadForm()
-    return render(request, 'recognition/upload.html', {'form': form})
+
+            return JsonResponse({
+                'success': True,
+                'text': extracted_text,
+                'active_ingredients': active_ingredients
+            })
+    return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
 
 def recognise(extracted_text):
