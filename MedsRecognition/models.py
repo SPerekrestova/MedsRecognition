@@ -36,7 +36,7 @@ class Profile(models.Model):
         return self.display_name or f"Profile {self.id}"
 
 
-class ScannedMedication(models.Model):
+class Medication(models.Model):
     id = models.BigAutoField(primary_key=True)
 
     profile = models.ForeignKey(

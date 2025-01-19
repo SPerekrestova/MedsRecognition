@@ -9,7 +9,7 @@ from MedsRecognition.trade_mark_fetcher import TradeMarkFetcher
 from MedsRecognition.decorators import supabase_login_required
 from MedsRecognition.forms import ImageUploadForm
 from MedsRecognition.active_ingredients_fetcher import ActiveIngredientsFetcher
-from MedsRecognition.models import ScannedMedication
+from MedsRecognition.models import Medication
 
 
 def extract_text_with_easyocr(image):
@@ -38,7 +38,7 @@ def upload_image(request):
             active_ingredients = recognise(extracted_text)
             trade_mark = TradeMarkFetcher().get_trade_mark(extracted_text, active_ingredients)
 
-            ScannedMedication.objects.create(
+            Medication.objects.create(
                 profile=request.auth_user,
                 active_ingredients=", ".join(active_ingredients),
                 scanned_text=extracted_text,
@@ -61,7 +61,7 @@ def upload_image(request):
 
 @supabase_login_required
 def user_dashboard(request):
-    medications = ScannedMedication.objects.filter(profile=request.auth_user).order_by(
+    medications = Medication.objects.filter(profile=request.auth_user).order_by(
         F("scan_date").desc()
     )
     return render(request, "recognition/dashboard.html", {"medications": medications})
