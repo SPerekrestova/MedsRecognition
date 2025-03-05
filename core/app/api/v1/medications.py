@@ -6,7 +6,6 @@ from supabase import Client, create_client
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.api.v1.dependencies import get_current_user
 from app.models.medication import Medication
 from app.schemas.medication import (
     MedicationResponse,
@@ -15,6 +14,7 @@ from app.schemas.medication import (
     MedicationStatus,
 )
 from app.services.ocr_service import recognise
+from app.services.session_service import get_current_user
 
 router = APIRouter()
 
@@ -32,18 +32,17 @@ async def upload_medication(
     try:
         # Upload image to Supabase storage
         file_path = f"medications/{current_user['id']}/{image.filename}"
-        file_content = await image.read()
 
         # Upload to storage and check response
         await supabase.storage.from_(settings.SUPABASE_BUCKET_NAME).upload(
-            file_path, file_content, file_options={"content-type": image.content_type}
+            file_path, image, file_options={"content-type": image.content_type}
         )
 
         # Get public URL
         public_url = f"{settings.storage_url}/{file_path}"
-
+        file_content = await image.read()
         # Process image with OCR
-        ocr_text = await recognise(file_content)
+        ocr_text = recognise(file_content)
 
         # Create medication record
         medication_data = MedicationCreate(

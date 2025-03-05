@@ -7,7 +7,7 @@ import pytest
 from fastapi import FastAPI, Depends
 from fastapi.testclient import TestClient
 
-from app.api.v1.dependencies import get_current_user, get_optional_user, require_profile
+from app.api.v1.dependencies import get_current_user
 from app.core.security import setup_security
 
 # Test data
@@ -38,14 +38,6 @@ def test_app(mock_supabase_service):
 
     @app.get("/test/protected")
     async def protected_route(user=Depends(get_current_user)):
-        return {"user": user}
-
-    @app.get("/test/optional")
-    async def optional_auth_route(user=Depends(get_optional_user)):
-        return {"user": user}
-
-    @app.get("/test/profile-required")
-    async def profile_required_route(user=Depends(require_profile)):
         return {"user": user}
 
     return app

@@ -1,32 +1,12 @@
 """Application event handlers and health checks."""
 
 from typing import Callable
-from fastapi import FastAPI, Response, status
-from sqlalchemy import text
-from tenacity import retry, stop_after_attempt, wait_exponential
 
 from app.core.database import engine
 from app.core.logging_config import logger
-
-from app.services.supabase import get_supabase_service
-
-from app.core.config import settings
-
-
-def _create_bucket():
-    supabase = get_supabase_service()
-    try:
-        supabase.get_supabase_client().storage.create_bucket(
-            settings.SUPABASE_BUCKET_NAME,
-            options={
-                "public": True,
-                "allowed_mime_types": ["image/*"],
-                "file_size_limit": 2048,
-            },
-        )
-    except Exception as e:
-        logger.error(f"Bucket creation failed: {e}")
-        raise
+from fastapi import FastAPI, Response, status
+from sqlalchemy import text
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 
 def create_start_app_handler(app: FastAPI) -> Callable:
@@ -50,7 +30,6 @@ def create_start_app_handler(app: FastAPI) -> Callable:
         """Initialize application services."""
         try:
             _check_db_connection()
-            _create_bucket()
             logger.info("Application startup complete")
         except Exception as e:
             logger.error(f"Application startup failed: {e}")

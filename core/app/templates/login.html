@@ -25,7 +25,6 @@
                 </form>
                 <div class="text-center mt-3">
                     <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
-                    <p><a href="#" onclick="handleForgotPassword(event)">Forgot Password?</a></p>
                 </div>
             </div>
         </div>
@@ -66,29 +65,5 @@ async function handleSubmit(event) {
     }
 }
 
-async function handleForgotPassword(event) {
-    event.preventDefault();
-    const email = document.getElementById('email').value;
-
-    if (!email) {
-        alert('Please enter your email address first');
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/v1/auth/password-reset/request', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email: email })
-        });
-
-        const data = await response.json();
-        alert('If the email exists in our system, you will receive password reset instructions.');
-    } catch (error) {
-        alert('Failed to request password reset. Please try again later.');
-    }
-}
 </script>
 {% endblock %}

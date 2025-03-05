@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     SUPABASE_URL: str
     SUPABASE_KEY: str
     SUPABASE_JWT_SECRET: str = None
-    SUPABASE_BUCKET_NAME: str = "pill-images"
+    SUPABASE_BUCKET_NAME: str = "scans"
     SUPABASE_ANON_KEY: str = None
     SUPABASE_SERVICE_ROLE_KEY: str = None
 
